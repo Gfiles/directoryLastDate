@@ -15,11 +15,13 @@ def get_last_modified_files(working_directory):
     last_modified_time = 0
     last_solution = ""
     for root, dirs, files in os.walk(working_directory):
-        #print(f"Processing directory: {dirs}")
-        #check if 'deploy' in directory name
-        #print(f"files: {files}")
-        # check if file has .log
-        log_file_list = dict()
+        #print("Scanning directory:", root)
+        if len(os.path.relpath(root, working_directory).split(os.sep)) == 1:
+            print(f"Analyzing: {root}")
+        if len(os.path.relpath(root, working_directory).split(os.sep)) > 4:
+            continue
+        if 'logs' not in root:
+            continue
         #if any(file.endswith('.log') for file in files):
         for file in files:
             if file.endswith('.log'):
@@ -32,7 +34,6 @@ def get_last_modified_files(working_directory):
                 modified_time = os.path.getmtime(os.path.join(root, file))
                 
                 file_info['modified'].append(datetime.fromtimestamp(modified_time).date())
-                continue
   
     return file_info
 
@@ -48,6 +49,7 @@ if __name__ == "__main__":
     working_directory = os.getcwd()
 
     logs_directory = 'logs'  # Change this to your logs directory
+    print("Starting to scan for log files in:", working_directory)
     file_info = get_last_modified_files(working_directory)
     #display_table(file_info)
     df = pd.DataFrame(file_info)
